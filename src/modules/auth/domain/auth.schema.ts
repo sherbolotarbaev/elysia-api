@@ -52,6 +52,34 @@ export const LogoutResponseSchema = z.object({
 	message: z.string(),
 })
 
+export const SendOtpRequestSchema = z.object({
+	email: z.string().email('Invalid email format').toLowerCase().trim(),
+	firstName: z
+		.string()
+		.min(1, 'First name is required')
+		.max(100, 'First name is too long')
+		.trim()
+		.optional(),
+	lastName: z.string().max(100, 'Last name is too long').trim().optional(),
+})
+
+export const VerifyOtpRequestSchema = z.object({
+	email: z.string().email('Invalid email format').toLowerCase().trim(),
+	code: z.string().length(6, 'OTP code must be 6 digits'),
+})
+
+export const OtpResponseSchema = z.object({
+	status: z.literal('success'),
+	message: z.string(),
+})
+
+export const VerifyOtpSuccessResponseSchema = z.object({
+	status: z.literal('success'),
+	data: z.object({
+		user: UserResponseSchema,
+	}),
+})
+
 export type LoginRequest = z.infer<typeof LoginRequestSchema>
 export type RegisterRequest = z.infer<typeof RegisterRequestSchema>
 export type AuthResponse = z.infer<typeof AuthResponseSchema>
@@ -60,3 +88,9 @@ export type RegisterResponse = z.infer<typeof RegisterResponseSchema>
 export type SuccessAuthResponse = z.infer<typeof SuccessAuthResponseSchema>
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>
 export type LogoutResponse = z.infer<typeof LogoutResponseSchema>
+export type SendOtpRequest = z.infer<typeof SendOtpRequestSchema>
+export type VerifyOtpRequest = z.infer<typeof VerifyOtpRequestSchema>
+export type OtpResponse = z.infer<typeof OtpResponseSchema>
+export type VerifyOtpSuccessResponse = z.infer<
+	typeof VerifyOtpSuccessResponseSchema
+>
