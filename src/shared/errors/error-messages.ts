@@ -1,0 +1,17 @@
+export enum ErrorMessage {
+	INVALID_CREDENTIALS = 'Invalid credentials',
+	EMAIL_ALREADY_EXISTS = 'Email already exists',
+	FIRST_NAME_REQUIRED = 'First name is required for registration',
+	USER_NOT_FOUND = 'User not found',
+	USER_NOT_FOUND_REGISTER = 'User not found. Please register first',
+	FAILED_TO_UPDATE_USER = 'Failed to update user',
+	OTP_ALREADY_SENT = 'OTP already sent. Please wait before requesting a new one',
+	OTP_NOT_FOUND = 'OTP not found or expired',
+	OTP_EXPIRED = 'OTP has expired',
+	OTP_MAX_ATTEMPTS = 'Maximum verification attempts exceeded',
+	INVALID_OTP_CODE = 'Invalid OTP code',
+	VALIDATION_FAILED = 'Validation failed',
+	ROUTE_NOT_FOUND = 'Route not found',
+	INTERNAL_SERVER_ERROR = 'Internal server error',
+	UNAUTHORIZED = 'Unauthorized',
+}

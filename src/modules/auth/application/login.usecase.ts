@@ -1,4 +1,5 @@
 import { UserRepository } from 'modules/users/infrastructure/user.repository'
+import { ErrorMessage, UnauthorizedError } from 'shared/errors'
 import { generateToken } from 'shared/infrastructure/auth/jwt'
 import { verifyPassword } from 'shared/infrastructure/auth/password'
 import { normalizeEmail } from 'shared/utils/sanitize'
@@ -11,7 +12,7 @@ export const loginUseCase = async (
 
 	const user = await UserRepository.getByEmail(email)
 	if (!user || !user.password) {
-		throw new Error('Invalid credentials')
+		throw new UnauthorizedError(ErrorMessage.INVALID_CREDENTIALS)
 	}
 
 	const isPasswordValid = await verifyPassword(
@@ -20,7 +21,7 @@ export const loginUseCase = async (
 	)
 
 	if (!isPasswordValid) {
-		throw new Error('Invalid credentials')
+		throw new UnauthorizedError(ErrorMessage.INVALID_CREDENTIALS)
 	}
 
 	const {

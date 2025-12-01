@@ -17,32 +17,6 @@ import {
 
 export const UserController = new Elysia({ prefix: '/users' })
 	.use(auth)
-	.onError(({ code, error, set }) => {
-		const errorMessage =
-			error instanceof Error ? error.message : 'Unknown error'
-
-		if (code === 'NOT_FOUND' || errorMessage.includes('not found')) {
-			set.status = 404
-			return {
-				status: 'error',
-				message: errorMessage || 'User not found',
-			}
-		}
-
-		if (code === 'VALIDATION') {
-			set.status = 400
-			return {
-				status: 'error',
-				message: errorMessage || 'Validation failed',
-			}
-		}
-
-		set.status = 500
-		return {
-			status: 'error',
-			message: 'Internal server error',
-		}
-	})
 	.guard({ auth: true }, app =>
 		app
 			.get(

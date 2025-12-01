@@ -20,8 +20,8 @@ const envSchema = z.object({
 	JWT_EXPIRES_IN: z.string().default('1d'),
 
 	// SendGrid
-	SENDGRID_API_KEY: z.string(),
-	SENDGRID_FROM_EMAIL: z.string().email(),
+	SENDGRID_API_KEY: z.string().optional(),
+	SENDGRID_FROM_EMAIL: z.string().email().optional(),
 })
 
 export const env = envSchema.parse(process.env)

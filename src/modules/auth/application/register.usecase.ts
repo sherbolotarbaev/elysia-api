@@ -1,5 +1,6 @@
 import { AuthProvider } from 'modules/auth/domain/auth-provider.enum'
 import { UserRepository } from 'modules/users/infrastructure/user.repository'
+import { ConflictError, ErrorMessage } from 'shared/errors'
 import { generateToken } from 'shared/infrastructure/auth/jwt'
 import { hashPassword } from 'shared/infrastructure/auth/password'
 import { normalizeEmail, sanitizeString } from 'shared/utils/sanitize'
@@ -14,7 +15,7 @@ export const registerUseCase = async (
 
 	const existingUser = await UserRepository.getByEmail(email)
 	if (existingUser) {
-		throw new Error('Email already exists')
+		throw new ConflictError(ErrorMessage.EMAIL_ALREADY_EXISTS)
 	}
 
 	const password = await hashPassword(userData.password)

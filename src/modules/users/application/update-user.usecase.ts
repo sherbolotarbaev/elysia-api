@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { ErrorMessage, InternalServerError, NotFoundError } from 'shared/errors'
 import { sanitizePhone, sanitizeString } from 'shared/utils/sanitize'
 import { UserResponseSchema, type UserResponse } from '../domain/user.schema'
 import { UserRepository } from '../infrastructure/user.repository'
@@ -38,7 +39,7 @@ export const updateUserUseCase = async (
 	const user = await UserRepository.getByEmail(email)
 
 	if (!user) {
-		throw new Error('User not found')
+		throw new NotFoundError(ErrorMessage.USER_NOT_FOUND)
 	}
 
 	const sanitizedUpdates: {
@@ -64,7 +65,7 @@ export const updateUserUseCase = async (
 	const updatedUser = await UserRepository.update(email, sanitizedUpdates)
 
 	if (!updatedUser) {
-		throw new Error('Failed to update user')
+		throw new InternalServerError(ErrorMessage.FAILED_TO_UPDATE_USER)
 	}
 
 	const { password, ...userWithoutPassword } = updatedUser

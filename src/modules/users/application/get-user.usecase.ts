@@ -1,3 +1,5 @@
+import { NotFoundError } from 'shared/errors/custom-errors'
+import { ErrorMessage } from 'shared/errors/error-messages'
 import { normalizeEmail } from 'shared/utils/sanitize'
 import { UserResponseSchema, type UserResponse } from '../domain/user.schema'
 import { UserRepository } from '../infrastructure/user.repository'
@@ -13,7 +15,7 @@ export const getUserByEmailUseCase = async (
 	const user = await UserRepository.getByEmail(normalizedEmail)
 
 	if (!user) {
-		throw new Error('User not found')
+		throw new NotFoundError(ErrorMessage.USER_NOT_FOUND)
 	}
 
 	const { password, ...userWithoutPassword } = user

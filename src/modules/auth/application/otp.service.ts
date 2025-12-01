@@ -1,8 +1,11 @@
 import sgMail from '@sendgrid/mail'
 
+import { BadRequestError, ErrorMessage } from 'shared/errors'
 import { env } from 'shared/infrastructure/env'
 
-sgMail.setApiKey(env.SENDGRID_API_KEY)
+if (env.SENDGRID_API_KEY) {
+	sgMail.setApiKey(env.SENDGRID_API_KEY)
+}
 
 export interface OtpData {
 	code: string
@@ -30,9 +33,7 @@ export class OtpService {
 		const existingOtp = this.otpStore.get(email)
 
 		if (existingOtp && existingOtp.expiresAt > Date.now()) {
-			throw new Error(
-				'OTP already sent. Please wait before requesting a new one'
-			)
+			throw new BadRequestError(ErrorMessage.OTP_ALREADY_SENT)
 		}
 
 		const code = this.generateCode()
@@ -48,23 +49,27 @@ export class OtpService {
 			lastName,
 		})
 
-		await sgMail.send({
-			to: email,
-			from: env.SENDGRID_FROM_EMAIL,
-			subject: 'Your OTP Code',
-			text: `Your OTP code is: ${code}. It will expire in 5 minutes.`,
-			html: `
-				<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-					<h2>Your OTP Code</h2>
-					<p>Use the following code to verify your email:</p>
-					<div style="background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; margin: 20px 0;">
-						${code}
-					</div>
-					<p>This code will expire in 5 minutes.</p>
-					<p>If you didn't request this code, please ignore this email.</p>
+		console.log(`[DEV] OTP Code for ${email}: ${code}`)
+
+		if (env.SENDGRID_API_KEY && env.SENDGRID_FROM_EMAIL) {
+			await sgMail.send({
+				to: email,
+				from: env.SENDGRID_FROM_EMAIL,
+				subject: 'Your OTP Code',
+				text: `Your OTP code is: ${code}. It will expire in 5 minutes.`,
+				html: `
+			<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+				<h2>Your OTP Code</h2>
+				<p>Use the following code to verify your email:</p>
+				<div style="background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; margin: 20px 0;">
+					${code}
 				</div>
-			`,
-		})
+				<p>This code will expire in 5 minutes.</p>
+				<p>If you didn't request this code, please ignore this email.</p>
+			</div>
+		`,
+			})
+		}
 
 		setTimeout(() => {
 			this.otpStore.delete(email)
@@ -75,17 +80,17 @@ export class OtpService {
 		const otpData = this.otpStore.get(email)
 
 		if (!otpData) {
-			throw new Error('OTP not found or expired')
+			throw new BadRequestError(ErrorMessage.OTP_NOT_FOUND)
 		}
 
 		if (otpData.expiresAt < Date.now()) {
 			this.otpStore.delete(email)
-			throw new Error('OTP has expired')
+			throw new BadRequestError(ErrorMessage.OTP_EXPIRED)
 		}
 
 		if (otpData.attempts >= this.MAX_ATTEMPTS) {
 			this.otpStore.delete(email)
-			throw new Error('Maximum verification attempts exceeded')
+			throw new BadRequestError(ErrorMessage.OTP_MAX_ATTEMPTS)
 		}
 
 		otpData.attempts++
@@ -94,7 +99,7 @@ export class OtpService {
 			if (otpData.attempts >= this.MAX_ATTEMPTS) {
 				this.otpStore.delete(email)
 			}
-			throw new Error('Invalid OTP code')
+			throw new BadRequestError(ErrorMessage.INVALID_OTP_CODE)
 		}
 
 		this.otpStore.delete(email)

@@ -18,36 +18,6 @@ import {
 } from '../domain/auth.schema'
 
 export const AuthController = new Elysia({ prefix: '/auth' })
-	.onError(({ code, error, set }) => {
-		const errorMessage =
-			error instanceof Error ? error.message : 'Unknown error'
-
-		if (
-			code === 'VALIDATION' ||
-			errorMessage.includes('already exists') ||
-			errorMessage.includes('Invalid')
-		) {
-			set.status = 400
-			return {
-				status: 'error',
-				message: errorMessage || 'Bad request',
-			}
-		}
-
-		if (errorMessage.includes('credentials')) {
-			set.status = 401
-			return {
-				status: 'error',
-				message: errorMessage || 'Authentication failed',
-			}
-		}
-
-		set.status = 500
-		return {
-			status: 'error',
-			message: 'Internal server error',
-		}
-	})
 	.post(
 		'/register',
 		async ({ body, cookie: { session }, set }) => {

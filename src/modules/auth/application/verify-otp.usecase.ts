@@ -1,5 +1,11 @@
 import { AuthProvider } from 'modules/auth/domain/auth-provider.enum'
 import { UserRepository } from 'modules/users/infrastructure/user.repository'
+import {
+	BadRequestError,
+	ConflictError,
+	ErrorMessage,
+	NotFoundError,
+} from 'shared/errors'
 import { generateToken } from 'shared/infrastructure/auth/jwt'
 import { normalizeEmail, sanitizeString } from 'shared/utils/sanitize'
 
@@ -29,12 +35,12 @@ export const verifyOtpUseCase = async (
 
 	if (isRegistration) {
 		if (!firstName) {
-			throw new Error('First name is required for registration')
+			throw new BadRequestError(ErrorMessage.FIRST_NAME_REQUIRED)
 		}
 
 		const existingUser = await UserRepository.getByEmail(normalizedEmail)
 		if (existingUser) {
-			throw new Error('Email already exists')
+			throw new ConflictError(ErrorMessage.EMAIL_ALREADY_EXISTS)
 		}
 
 		const sanitizedFirstName = sanitizeString(firstName)
@@ -71,7 +77,7 @@ export const verifyOtpUseCase = async (
 	} else {
 		const existingUser = await UserRepository.getByEmail(normalizedEmail)
 		if (!existingUser) {
-			throw new Error('User not found. Please register first')
+			throw new NotFoundError(ErrorMessage.USER_NOT_FOUND_REGISTER)
 		}
 
 		const token = generateToken({
