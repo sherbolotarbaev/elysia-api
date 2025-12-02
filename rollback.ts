@@ -1,6 +1,7 @@
-import { readFileSync } from 'fs'
-import { join } from 'path'
-import { sql } from '../src/shared/infrastructure/db'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+import { sql } from './src/shared/infrastructure/db'
 
 async function getLastMigration(): Promise<string | null> {
 	const result = await sql<{ name: string }[]>`

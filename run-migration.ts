@@ -1,6 +1,7 @@
-import { readFileSync, readdirSync } from 'fs'
-import { join } from 'path'
-import { sql } from '../src/shared/infrastructure/db'
+import { readFileSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
+
+import { sql } from './src/shared/infrastructure/db'
 
 async function createMigrationsTable() {
 	await sql`
